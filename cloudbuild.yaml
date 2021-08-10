@@ -17,7 +17,7 @@ steps:
 - name: 'gcr.io/cloud-builders/gke-deploy'
   args:
   - run
-  - --filename=./k8s/
+  - --filename=./k8s/deployment.yaml
   - --image=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:latest
   - --location=us-central1-a
   - --cluster=nginx-1-cluster
