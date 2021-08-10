@@ -17,7 +17,9 @@ public class PostController {
 
     @PostConstruct
     public void init() {
-       posts.add(new Post("1", "title", "description", "full", "author"));
+        posts.add(new Post("1", "title", "description", "full", "author"));
+        posts.add(new Post("2", "title", "description", "full", "author"));
+
     }
 
     @GetMapping("/posts")
