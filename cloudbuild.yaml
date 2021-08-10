@@ -13,4 +13,12 @@ steps:
 #push docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project' ]
+# deploy container image to GKE
+- name: 'gcr.io/cloud-builders/gke-deploy'
+  args:
+  - run
+  - --filename=./k8s/
+  - --image=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:latest
+  - --location=us-central1-a
+  - --cluster=nginx-1-cluster
 images: ['us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project']
