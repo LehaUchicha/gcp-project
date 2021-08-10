@@ -14,11 +14,6 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project' ]
 #Step 5. Deploy container image to GKE
-- name: 'gcr.io/cloud-builders/gke-deploy'
-  args:
-  - run
-  - --filename=./k8s/deployment.yaml
-  - --image=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:latest
-  - --location=us-central1-a
-  - --cluster=nginx-1-cluster
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['set', 'image', 'deployments/nginx-1', 'gcp-project-sha256-1=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:latest']
 images: ['us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project']
