@@ -4,8 +4,6 @@ import com.epam.gcpproject.model.Post;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PostController {
 
-    private List<Post> posts = new ArrayList<>();
+    private List<Post> posts = List.of(new Post("1", "title", "description", "full", "author"));
 
     @GetMapping("/posts")
     public List<Post> getPosts() {
