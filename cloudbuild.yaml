@@ -1,19 +1,19 @@
 steps:
-#build project
+#Step 1. Build project
 - name: maven:3-jdk-11
   entrypoint: mvn
   args: ['clean','install', '-DskipTests=true']
-#test project
+#Step 2. Test project
 - name: maven:3-jdk-11
   entrypoint: mvn
   args: ['test']
-#build docker image
+#Step 3. Build docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project', '.' ]
-#push docker image
+#Step 4. Push docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project' ]
-# deploy container image to GKE
+#Step 5. Deploy container image to GKE
 - name: 'gcr.io/cloud-builders/gke-deploy'
   args:
   - run
