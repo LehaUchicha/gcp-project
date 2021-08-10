@@ -1,0 +1,16 @@
+steps:
+#build project
+- name: maven:3-jdk-11
+  entrypoint: mvn
+  args: ['clean','install', '-DskipTests=true']
+#test project
+- name: maven:3-jdk-11
+  entrypoint: mvn
+  args: ['test']
+#build docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-t', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project', '.' ]
+#push docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project' ]
+images: ['us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project']
