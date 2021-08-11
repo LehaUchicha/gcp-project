@@ -7,14 +7,10 @@ steps:
 - name: maven:3-jdk-11
   entrypoint: mvn
   args: ['test']
-#Step 3. migrate scripts
-- name: maven:3-jdk-11
-  entrypoint: mvn
-  args: ['-X','liquibase:update']
-#Step 4. Build docker image
+#Step 3. Build docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$COMMIT_SHA', '.' ]
-#Step 5. Push docker image
+#Step 4. Push docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$COMMIT_SHA' ]
 #Step 5. Deploy container image to GKE
@@ -30,7 +26,7 @@ steps:
 #    - CLOUDSDK_COMPUTE_ZONE=us-central1-a
 #    - CLOUDSDK_CONTAINER_CLUSTER=nginx-1-cluster
 #  args: ['set', 'image', 'deployments/nginx-1', 'gcp-project-sha256-1=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project']
-#Step 6. Deploy
+#Step 5. Deploy
 - name: "gcr.io/cloud-builders/gke-deploy"
   args:
     - run
