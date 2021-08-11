@@ -3,53 +3,10 @@ kind: Service
 metadata:
   annotations:
     cloud.google.com/neg: '{"ingress":true}'
-  creationTimestamp: "2021-08-10T19:31:16Z"
   finalizers:
   - service.kubernetes.io/load-balancer-cleanup
   labels:
     app: gcp-project
-  managedFields:
-  - apiVersion: v1
-    fieldsType: FieldsV1
-    fieldsV1:
-      f:metadata:
-        f:labels:
-          .: {}
-          f:app: {}
-      f:spec:
-        f:externalTrafficPolicy: {}
-        f:ports:
-          .: {}
-          k:{"port":80,"protocol":"TCP"}:
-            .: {}
-            f:port: {}
-            f:protocol: {}
-            f:targetPort: {}
-        f:selector:
-          .: {}
-          f:app: {}
-        f:sessionAffinity: {}
-        f:type: {}
-    manager: GoogleCloudConsole
-    operation: Update
-    time: "2021-08-10T19:31:16Z"
-  - apiVersion: v1
-    fieldsType: FieldsV1
-    fieldsV1:
-      f:metadata:
-        f:finalizers:
-          .: {}
-          v:"service.kubernetes.io/load-balancer-cleanup": {}
-      f:status:
-        f:loadBalancer:
-          f:ingress: {}
-    manager: kube-controller-manager
-    operation: Update
-    time: "2021-08-10T19:31:58Z"
-  name: nginx-1-service
-  namespace: default
-  resourceVersion: "3066"
-  uid: 4d1eb3b5-0050-4c5a-9d9b-e42c934968a8
 spec:
   clusterIP: 10.64.3.149
   clusterIPs:
