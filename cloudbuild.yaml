@@ -10,7 +10,7 @@ steps:
 #Step 3. migrate scripts
 - name: maven:3-jdk-11
   entrypoint: mvn
-  args: ['liquibase:update']
+  args: ['-X','liquibase:update']
 #Step 4. Build docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$COMMIT_SHA', '.' ]
