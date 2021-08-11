@@ -31,7 +31,7 @@ steps:
   args:
     - run
     - --filename=k8s/deployment.yaml
-    - --image=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA
+    - --image=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:'$SHORT_SHA'
     - --location=us-central1-a
     - --cluster=nginx-1-cluster
 images: ['us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA']
