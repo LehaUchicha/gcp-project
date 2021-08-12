@@ -1,17 +1,21 @@
 steps:
 #Step 1. Build project
-- name: maven:3-jdk-11
+- id: Build project
+  name: maven:3-jdk-11
   entrypoint: mvn
   args: ['clean','install', '-DskipTests=true']
 #Step 2. Test project
-- name: maven:3-jdk-11
+- id: Test project
+  name: maven:3-jdk-11
   entrypoint: mvn
   args: ['test']
 #Step 3. Build docker image
-- name: 'gcr.io/cloud-builders/docker'
+- id: Build docker image
+  name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA', '.' ]
 #Step 4. Push docker image
-- name: 'gcr.io/cloud-builders/docker'
+- id: Push docker image
+  name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA' ]
 #Step 5. Deploy container image to GKE
 #- name: 'gcr.io/cloud-builders/kubectl'
@@ -27,8 +31,9 @@ steps:
 #    - CLOUDSDK_CONTAINER_CLUSTER=nginx-1-cluster
 #  args: ['set', 'image', 'deployments/nginx-1', 'gcp-project-sha256-1=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project']
 #Step 5. Deploy
-- name: ubuntu
-  args: [ 'bash','-c','sed -i "s,INIT_IMAGE_NAME,us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA,"k8s/deployment.yaml' ]
+- id: Update Image Tag
+  name: ubuntu
+  args: [ 'bash','-c','sed -i "s|INIT_IMAGE_NAME|us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA|" k8s/deployment.yaml' ]
 
 - id: Updating Deployment
   name: gcr.io/cloud-builders/kubectl
