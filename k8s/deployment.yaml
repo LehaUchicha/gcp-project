@@ -29,7 +29,7 @@ spec:
       serviceAccountName: sql-service-account
       containers:
       - name: gcp-project-sha256-1
-        image: us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project
+        image: us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$COMMIT_SHA
         imagePullPolicy: Always
         env:
         - name: DB_USER
