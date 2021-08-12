@@ -27,13 +27,20 @@ steps:
 #    - CLOUDSDK_CONTAINER_CLUSTER=nginx-1-cluster
 #  args: ['set', 'image', 'deployments/nginx-1', 'gcp-project-sha256-1=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project']
 #Step 5. Deploy
-- name: "gcr.io/cloud-builders/gke-deploy"
-  args:
-    - run
-    - --filename=k8s/deployment.yaml
-    - --image=${_APP_IMAGE}
-    - --location=us-central1-a
-    - --cluster=nginx-1-cluster
-substitutions:
-  _APP_IMAGE: 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA'
+- name: ubuntu
+  args: [ 'bash','-c','sed -i "s,INIT_IMAGE_NAME,us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA,"k8s/deployment.yaml' ]
+
+- id: Updating Deployment
+  name: gcr.io/cloud-builders/kubectl
+  args: ['apply','-f','k8s/deployment.yaml']
+  env:
+    - CLOUDSDK_COMPUTE_ZONE=us-central1-a
+    - CLOUDSDK_CONTAINER_CLUSTER=nginx-1-cluster
+#- name: "gcr.io/cloud-builders/gke-deploy"
+#  args:
+#    - run
+#    - --filename=k8s/deployment.yaml
+#    - --image=${_APP_IMAGE}
+#    - --location=us-central1-a
+#    - --cluster=nginx-1-cluster
 images: ['us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA']
