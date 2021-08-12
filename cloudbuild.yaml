@@ -28,12 +28,12 @@ steps:
 #  args: ['set', 'image', 'deployments/nginx-1', 'gcp-project-sha256-1=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project']
 #Step 5. Deploy
 - name: "gcr.io/cloud-builders/gke-deploy"
-  env:
-    - 'APP_IMAGE=us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA'
   args:
     - run
     - --filename=k8s/deployment.yaml
-    - --image=$APP_IMAGE
+    - --image=${_APP_IMAGE}
     - --location=us-central1-a
     - --cluster=nginx-1-cluster
+substitutions:
+  _APP_IMAGE: 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA'
 images: ['us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA']
