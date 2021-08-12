@@ -80,7 +80,7 @@ spec:
             # The proxy's CPU use scales linearly with the amount of IO between
             # the database and the application. Adjust this value based on your
             # application's requirements.
-            cpu:    "0.5"
+            cpu:    "0.25"
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
