@@ -21,7 +21,7 @@ public class PostController {
     }
 
     @GetMapping("/posts/{id}")
-    public ResponseEntity<Post> getPostById(@PathVariable String id) {
+    public ResponseEntity<Post> getPostById(@PathVariable long id) {
         return postRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -33,22 +33,21 @@ public class PostController {
     }
 
     @PutMapping("/posts/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post post) {
-        postRepository.findById(id)
+    public ResponseEntity<Post> updatePost(@PathVariable long id, @RequestBody Post post) {
+        return postRepository.findById(id)
                 .map(existsPost -> {
                     existsPost.setAuthor(post.getAuthor());
                     existsPost.setDescription(post.getDescription());
                     existsPost.setTitle(post.getTitle());
                     existsPost.setFullText(post.getFullText());
-                    return postRepository.save(existsPost);
+                    return ResponseEntity.ok(postRepository.save(existsPost));
                 })
-                .orElseThrow(() -> new RuntimeException("SUch post doesn't exists"));
-        return new ResponseEntity<>(postRepository.save(post), HttpStatus.CREATED);
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/posts/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePost(@PathVariable String id) {
+    public void deletePost(@PathVariable Long id) {
         postRepository.deleteById(id);
     }
 }
