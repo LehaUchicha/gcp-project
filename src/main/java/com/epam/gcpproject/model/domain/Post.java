@@ -1,4 +1,4 @@
-package com.epam.gcpproject.model;
+package com.epam.gcpproject.model.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

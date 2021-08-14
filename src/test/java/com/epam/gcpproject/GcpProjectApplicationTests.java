@@ -1,6 +1,6 @@
 package com.epam.gcpproject;
 
-import com.epam.gcpproject.model.Post;
+import com.epam.gcpproject.model.domain.Post;
 import com.epam.gcpproject.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
