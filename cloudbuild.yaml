@@ -11,6 +11,24 @@ steps:
   entrypoint: mvn
   args: ['test']
 
+# Install Cloud SQL proxy
+- id: proxy-install
+  name: maven:3-jdk-11
+  entrypoint: sh
+  args:
+    - "-c"
+    - "wget https://storage.googleapis.com/cloudsql-proxy/v1.20.1/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && chmod +x cloud_sql_proxy"
+
+# Migrate database schema to the latest version
+- id: migrate
+  name: maven:3-jdk-11
+  entrypoint: sh
+  args:
+    - "-c"
+    - "(./cloud_sql_proxy -dir=/cloudsql -instances=gcp-project-322518:us-central1:postgre-instance & sleep 2) && mvn liquibase:update"
+  timeout: "1200s"
+  waitFor: ["proxy-install"]
+
 #Step 3. Build docker image
 - id: Build docker image
   name: 'gcr.io/cloud-builders/docker'
