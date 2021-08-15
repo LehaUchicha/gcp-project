@@ -25,7 +25,7 @@ steps:
   entrypoint: sh
   args:
     - "-c"
-    - "(./cloud_sql_proxy -dir=/cloudsql -instances=gcp-project-322518:us-central1:postgre-instance & sleep 10) && mvn liquibase:update -Dliquibase.url=jdbc:postgresql://10.88.176.5/postgres -Dliquibase.username=postgres -Dliquibase.password=1234"
+    - "(./cloud_sql_proxy -dir=/cloudsql -instances=gcp-project-322518:us-central1:postgre-instance & sleep 10) && mvn liquibase:update -Dliquibase.url=jdbc:postgresql://127.0.0.1/postgres -Dliquibase.username=postgres -Dliquibase.password=1234"
   timeout: "1200s"
   waitFor: ["proxy-install"]
 
