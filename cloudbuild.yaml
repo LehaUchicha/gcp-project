@@ -25,7 +25,7 @@ steps:
   entrypoint: sh
   args:
     - "-c"
-    - "(./cloud_sql_proxy -instances=gcp-project-322518:us-central1:postgre-instance=tcp:localhost:5432 & sleep 2) && mvn liquibase:update -Dliquibase.url=jdbc:postgresql://localhost/postgres -Dliquibase.username=$$DB_USER -Dliquibase.password=$$DB_PASS"
+    - "(./cloud_sql_proxy -instances=gcp-project-322518:us-central1:postgre-instance=tcp:localhost:5432 & sleep 2) && mvn liquibase:update -Dliquibase.url=jdbc:postgresql://$$DB_HOST/$$DB_NAME -Dliquibase.username=$$DB_USER -Dliquibase.password=$$DB_PASS"
   timeout: "150s"
   secretEnv: ['DB_PASS', 'DB_USER']
   waitFor: ["Install Cloud Sql Auth Proxy"]
@@ -59,3 +59,7 @@ availableSecrets:
       env: 'DB_PASS'
     - versionName: projects/325607545884/secrets/POSTGRES_USERNAME/versions/1
       env: 'DB_USER'
+    - versionName: projects/325607545884/secrets/POSTGRES_HOST/versions/2
+      env: 'DB_HOST'
+    - versionName: projects/325607545884/secrets/POSTGRES_DATABASE/versions/1
+      env: 'DB_NAME'
