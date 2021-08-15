@@ -17,7 +17,7 @@ steps:
   entrypoint: sh
   args:
     - "-c"
-    - "wget https://storage.googleapis.com/cloudsql-proxy/v1.20.1/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && chmod +x cloud_sql_proxy"
+    - "wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && chmod +x cloud_sql_proxy"
 
 # Migrate database schema to the latest version
 - id: migrate
