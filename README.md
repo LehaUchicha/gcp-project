@@ -145,6 +145,60 @@ Work with cluster:
    ```
    
 3. Create deployment.yaml
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  generation: 1
+  labels:
+    app: gcp-project
+  name: nginx-1
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: gcp-project
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: gcp-project
+    spec:
+      serviceAccountName: sql-service-account
+      containers:
+      - name: gcp-project-sha256-1
+        image: INIT_IMAGE_NAME
+        imagePullPolicy: Always
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-db-secret
+              key: database
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: postgres-db-secret
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-db-secret
+              key: database
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+```
    
 4. Apply deployment using command
    ```
@@ -157,12 +211,13 @@ Work with cluster:
 * Create a pipeline in Cloud Build to deploy a new version of your image when the source code changes.
 ***
 
-1.Modify cloudbuild.yaml file. Needs to add steps, where new image version should be set in the deployment.yaml
+1. Modify cloudbuild.yaml file. Needs to add steps, where new image version should be set in the deployment.yaml
 ```yaml
 - id: Update Image Tag
   name: ubuntu
   args: [ 'bash','-c','sed -i "s|INIT_IMAGE_NAME|us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA|" k8s/deployment.yaml' ]
 ```
+
 2. Modify cloudbuild.yaml file. Needs to apply updated deployment.yaml
 ```yaml
 - id: Updating Deployment
@@ -232,8 +287,54 @@ iam.gke.io/gcp-service-account=postgres-service-account@gcp-project-322518.iam.g
  </dependency>
 ```
 
-2. Create migration scripts
-
+2. Create migration scripts. File db.changelog-0.0.0.yaml
+```yaml
+databaseChangeLog:
+  - changeSet:
+      id: create-table-posts
+      author: aleksei
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: posts
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: posts_pkey
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: title
+                  type: VARCHAR(250)
+              - column:
+                  name: description
+                  type: VARCHAR(250)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: full_text
+                  type: VARCHAR(250)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: author
+                  type: VARCHAR(250)
+            tableName: posts
+```
+and file db.changelog-master.yaml
+```yaml
+databaseChangeLog:
+  - include:
+      file: db/changelog/db.changelog-0.0.0.yaml
+```
 3. Run script using command:
 ```
 mvn liquibase:update
@@ -244,14 +345,92 @@ mvn liquibase:update
 ###Task 7. Automate SQL migration scripts (10 points)
 ***
 
+Modify cloudbuild.yaml file. add such fragments:
+```yaml
+#Step 3. Install Cloud SQL proxy
+- id: Install Cloud Sql Auth Proxy
+  name: maven:3-jdk-11
+  entrypoint: sh
+  args:
+    - "-c"
+    - "wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && chmod +x cloud_sql_proxy"
+
+#Step 4. Run migration scripts using liquibase
+- id: Run migration scripts
+  name: maven:3-jdk-11
+  entrypoint: sh
+  args:
+    - "-c"
+    - "(./cloud_sql_proxy -instances=gcp-project-322518:us-central1:postgre-instance=tcp:localhost:5432 & sleep 2) && mvn liquibase:update -Dliquibase.url=jdbc:postgresql://$$DB_HOST/$$DB_NAME -Dliquibase.username=$$DB_USER -Dliquibase.password=$$DB_PASS"
+  timeout: "150s"
+  secretEnv: ['DB_PASS', 'DB_USER', 'DB_HOST', 'DB_NAME']
+  waitFor: ["Install Cloud Sql Auth Proxy"]
+```
+Step 3 required for installing Cloud SQL Auth proxy, otherwise, it will be impossible to connect to Postgres sql.
+Step 4. will run Cloud SQL Auth proxy  then will run liquibase command for migration.
+Here such secrets as DB_PASS', 'DB_USER', 'DB_HOST', 'DB_NAME' comes from Secret management.
+Fod fetch secrets from secrets manager needs to modify cloudbuild.yaml
+```yaml
+availableSecrets:
+  secretManager:
+    - versionName: projects/325607545884/secrets/POSTGRES_PASSWORD/versions/2
+      env: 'DB_PASS'
+    - versionName: projects/325607545884/secrets/POSTGRES_USERNAME/versions/1
+      env: 'DB_USER'
+    - versionName: projects/325607545884/secrets/POSTGRES_HOST/versions/2
+      env: 'DB_HOST'
+    - versionName: projects/325607545884/secrets/POSTGRES_DATABASE/versions/1
+      env: 'DB_NAME'
+```
+
 ###Task 8. Expose your service over Cloud Load Balancer with external static IP address (10 points)
+***
+
+1. Create service.yaml
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    cloud.google.com/neg: '{"ingress":true}'
+  finalizers:
+  - service.kubernetes.io/load-balancer-cleanup
+  labels:
+    app: gcp-project
+spec:
+  clusterIP: 10.64.3.149
+  clusterIPs:
+  - 10.64.3.149
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 32412
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: gcp-project
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: 34.123.209.167
+
+```
+
+2. Execute command:
+
+```
+kubectl apply -f service.yaml
+```
+
 ***
 
 ##Results
 
-|Task | Expected points | Actual Points |
+|Task | Status | Actual Points |
 |-----|-----------------|---------------|
-|Task 1| 10|0|
+|Task 1|  :heavy_check_mark: |0|
 |Task 2| 10|0|
 |Task 3| 10|0|
 |Task 4| 10|0|
