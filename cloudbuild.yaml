@@ -25,8 +25,9 @@ steps:
   entrypoint: sh
   args:
     - "-c"
-    - "(./cloud_sql_proxy -instances=gcp-project-322518:us-central1:postgre-instance=tcp:localhost:5432 & sleep 2) && mvn liquibase:update -Dliquibase.url=jdbc:postgresql://localhost/postgres -Dliquibase.username=postgres -Dliquibase.password=1234"
+    - "(./cloud_sql_proxy -instances=gcp-project-322518:us-central1:postgre-instance=tcp:localhost:5432 & sleep 2) && mvn liquibase:update -Dliquibase.url=jdbc:postgresql://localhost/postgres -Dliquibase.username=$$DB_USER -Dliquibase.password=$$DB_PASS"
   timeout: "150s"
+  secretEnv: ['DB_PASS', 'DB_USER']
   waitFor: ["Install Cloud Sql Auth Proxy"]
 
 #Step 5. Build docker image
@@ -52,3 +53,9 @@ steps:
     - CLOUDSDK_COMPUTE_ZONE=us-central1-a
     - CLOUDSDK_CONTAINER_CLUSTER=nginx-1-cluster
 images: ['us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA']
+availableSecrets:
+  secretManager:
+    - versionName: projects/325607545884/secrets/POSTGRES_PASSWORD/versions/2
+      env: 'DB_PASS'
+    - versionName: projects/325607545884/secrets/POSTGRES_USERNAME/versions/1
+      env: 'DB_USER'
