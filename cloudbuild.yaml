@@ -11,15 +11,15 @@ steps:
   entrypoint: mvn
   args: ['test']
 
-# Install Cloud SQL proxy
-- id: proxy-install
+#Step 3. Install Cloud SQL proxy
+- id: Install Cloud Sql Auth Proxy
   name: maven:3-jdk-11
   entrypoint: sh
   args:
     - "-c"
     - "wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy && chmod +x cloud_sql_proxy"
 
-# Migrate database schema to the latest version
+#Step 4. Run migration scripts using liquibase
 - id: migrate
   name: maven:3-jdk-11
   entrypoint: sh
@@ -29,22 +29,22 @@ steps:
   timeout: "150s"
   waitFor: ["proxy-install"]
 
-#Step 3. Build docker image
+#Step 5. Build docker image
 - id: Build docker image
   name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA', '.' ]
 
-#Step 4. Push docker image
+#Step 6. Push docker image
 - id: Push docker image
   name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA' ]
 
-#Step 5. Update Image Tag
+#Step 7. Update Image Tag
 - id: Update Image Tag
   name: ubuntu
   args: [ 'bash','-c','sed -i "s|INIT_IMAGE_NAME|us-central1-docker.pkg.dev/gcp-project-322518/gcp-project-docker-repo/gcp-project:$SHORT_SHA|" k8s/deployment.yaml' ]
 
-#Step 6. Updating Deployment
+#Step 8. Updating Deployment
 - id: Updating Deployment
   name: gcr.io/cloud-builders/kubectl
   args: ['apply','-f','k8s/deployment.yaml']
