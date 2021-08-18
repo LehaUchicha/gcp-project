@@ -59,7 +59,7 @@ spec:
 
           # If connecting from a VPC-native GKE cluster, you can use the
           # following flag to have the proxy connect over private IP
-          #- "-ip_address_types=PRIVATE"
+          - "-ip_address_types=PRIVATE"
 
           # Replace DB_PORT with the port the proxy should listen on
           # Defaults: MySQL: 3306, Postgres: 5432, SQLServer: 1433
