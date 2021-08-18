@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: delete_temp_column
+      author: alex
+      changes:
+        - dropColumn:
+            columnName: temp
+            columns:
+              - column:
+                  name: temp
+            schemaName: public
+            tableName: posts

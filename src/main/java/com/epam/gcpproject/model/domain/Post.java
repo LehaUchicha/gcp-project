@@ -30,6 +30,6 @@ public class Post {
     @Column(name = "author")
     private String author;
 
-    @Column(name = "temp")
-    private String temp;
+//    @Column(name = "temp")
+//    private String temp;
 }
