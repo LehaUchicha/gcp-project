@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: addColumn-example
+      author: alex
+      changes:
+        - addColumn:
+            tableName: posts
+            columns:
+              - column:
+                  name: temp
+                  type: varchar(50)
