@@ -31,5 +31,5 @@ public class PostDto {
     @NotBlank
     private String author;
 
-   // private String temp;
+    private String temp;
 }
